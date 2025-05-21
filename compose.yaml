@@ -1,0 +1,37 @@
+services:
+  redis:
+  # This is a Redis service that uses the redislabs/redismod image with port 6379 exposed.
+    image: "redislabs/redismod"
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+
+  website1:
+  # This is a web service that uses the Dockerfile in the ./web directory, restarts on failure, and exposes port 5000.
+    # The service is named website1 and is accessible on port 81 of the host machine.
+    restart: on-failure 
+    build: ./web
+    hostname: website1
+    ports:
+      - "81:5000"
+    
+  website2:
+  # This is another web service that uses the Dockerfile in the ./web directory, restarts on failure, and exposes port 5000.
+    # The service is named website2 and is accessible on port 82 of the host machine. It is built from the same Dockerfile as website 1 but it runs on a different port.
+      restart: on-failure
+      build: ./web
+      hostname: website2
+      ports:
+        - "82:5000"
+
+  nginx:
+  # This is an Nginx service that uses the Dockerfile in the ./nginx directory, and exposes port 80 and it depends on the two services website1 and website2.
+
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - website1
+      - website2
